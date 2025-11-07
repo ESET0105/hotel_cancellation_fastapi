@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Cancellation Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        .row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .row .form-group {
+            flex: 1;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .danger {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .probability {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Hotel Cancellation Prediction</h1>
+        <form id="predictionForm">
+            <div class="row">
+                <div class="form-group">
+                    <label for="hotel">Hotel Type:</label>
+                    <select id="hotel" name="hotel" required>
+                        <option value="">Select Hotel Type</option>
+                        <option value="Resort Hotel">Resort Hotel</option>
+                        <option value="City Hotel">City Hotel</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="arrival_date_month">Arrival Month:</label>
+                    <select id="arrival_date_month" name="arrival_date_month" required>
+                        <option value="">Select Month</option>
+                        <option value="January">January</option>
+                        <option value="February">February</option>
+                        <option value="March">March</option>
+                        <option value="April">April</option>
+                        <option value="May">May</option>
+                        <option value="June">June</option>
+                        <option value="July">July</option>
+                        <option value="August">August</option>
+                        <option value="September">September</option>
+                        <option value="October">October</option>
+                        <option value="November">November</option>
+                        <option value="December">December</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="meal">Meal Type:</label>
+                    <select id="meal" name="meal" required>
+                        <option value="">Select Meal Type</option>
+                        <option value="BB">BB (Bed & Breakfast)</option>
+                        <option value="FB">FB (Full Board)</option>
+                        <option value="HB">HB (Half Board)</option>
+                        <option value="SC">SC (Self Catering)</option>
+                        <option value="Undefined">Undefined</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="market_segment">Market Segment:</label>
+                    <select id="market_segment" name="market_segment" required>
+                        <option value="">Select Market Segment</option>
+                        <option value="Direct">Direct</option>
+                        <option value="Corporate">Corporate</option>
+                        <option value="Online TA">Online TA</option>
+                        <option value="Offline TA/TO">Offline TA/TO</option>
+                        <option value="Complementary">Complementary</option>
+                        <option value="Groups">Groups</option>
+                        <option value="Undefined">Undefined</option>
+                        <option value="Aviation">Aviation</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="distribution_channel">Distribution Channel:</label>
+                    <select id="distribution_channel" name="distribution_channel" required>
+                        <option value="">Select Distribution Channel</option>
+                        <option value="Direct">Direct</option>
+                        <option value="Corporate">Corporate</option>
+                        <option value="TA/TO">TA/TO</option>
+                        <option value="Undefined">Undefined</option>
+                        <option value="GDS">GDS</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="reserved_room_type">Reserved Room Type:</label>
+                    <select id="reserved_room_type" name="reserved_room_type" required>
+                        <option value="">Select Room Type</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                        <option value="E">E</option>
+                        <option value="F">F</option>
+                        <option value="G">G</option>
+                        <option value="H">H</option>
+                        <option value="L">L</option>
+                        <option value="P">P</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="deposit_type">Deposit Type:</label>
+                    <select id="deposit_type" name="deposit_type" required>
+                        <option value="">Select Deposit Type</option>
+                        <option value="No Deposit">No Deposit</option>
+                        <option value="Refundable">Refundable</option>
+                        <option value="Non Refund">Non Refund</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="customer_type">Customer Type:</label>
+                    <select id="customer_type" name="customer_type" required>
+                        <option value="">Select Customer Type</option>
+                        <option value="Transient">Transient</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Transient-Party">Transient-Party</option>
+                        <option value="Group">Group</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Numerical Inputs -->
+            <h3>Numerical Information</h3>
+            <div class="row">
+                <div class="form-group">
+                    <label for="lead_time">Lead Time (days):</label>
+                    <input type="number" id="lead_time" name="lead_time" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="arrival_date_week_number">Arrival Week Number:</label>
+                    <input type="number" id="arrival_date_week_number" name="arrival_date_week_number" min="1" max="53"
+                        required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="arrival_date_day_of_month">Arrival Day of Month:</label>
+                    <input type="number" id="arrival_date_day_of_month" name="arrival_date_day_of_month" min="1"
+                        max="31" required>
+                </div>
+                <div class="form-group">
+                    <label for="stays_in_weekend_nights">Weekend Nights:</label>
+                    <input type="number" id="stays_in_weekend_nights" name="stays_in_weekend_nights" min="0" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="stays_in_week_nights">Week Nights:</label>
+                    <input type="number" id="stays_in_week_nights" name="stays_in_week_nights" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="adults">Number of Adults:</label>
+                    <input type="number" id="adults" name="adults" min="1" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="children">Number of Children:</label>
+                    <input type="number" id="children" name="children" min="0" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label for="babies">Number of Babies:</label>
+                    <input type="number" id="babies" name="babies" min="0" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="is_repeated_guest">Repeated Guest (0=No, 1=Yes):</label>
+                    <select id="is_repeated_guest" name="is_repeated_guest" required>
+                        <option value="">Select</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="previous_cancellations">Previous Cancellations:</label>
+                    <input type="number" id="previous_cancellations" name="previous_cancellations" min="0" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="previous_bookings_not_canceled">Previous Bookings Not Canceled:</label>
+                    <input type="number" id="previous_bookings_not_canceled" name="previous_bookings_not_canceled"
+                        min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="required_car_parking_spaces">Car Parking Spaces:</label>
+                    <input type="number" id="required_car_parking_spaces" name="required_car_parking_spaces" min="0"
+                        required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="total_of_special_requests">Special Requests:</label>
+                    <input type="number" id="total_of_special_requests" name="total_of_special_requests" min="0"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="adr">Average Daily Rate (ADR):</label>
+                    <input type="number" id="adr" name="adr" min="0" step="0.01" required>
+                </div>
+            </div>
+
+            <button type="submit">Predict Cancellation</button>
+        </form>
+
+        <div id="result" class="result">
+            <h3>Prediction Result</h3>
+            <div id="predictionText"></div>
+            <div id="probability" class="probability"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            // Get form data
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            // Convert numerical fields to appropriate types
+            const numericalFields = [
+                'lead_time', 'arrival_date_week_number', 'arrival_date_day_of_month',
+                'stays_in_weekend_nights', 'stays_in_week_nights', 'adults', 'children',
+                'babies', 'is_repeated_guest', 'previous_cancellations',
+                'previous_bookings_not_canceled', 'required_car_parking_spaces',
+                'total_of_special_requests', 'adr'
+            ];
+
+            numericalFields.forEach(field => {
+                if (data[field]) {
+                    data[field] = parseFloat(data[field]);
+                }
+            });
+
+            try {
+                const response = await fetch('http://localhost:8000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                // Display results
+                const resultDiv = document.getElementById('result');
+                const predictionText = document.getElementById('predictionText');
+                const probabilityDiv = document.getElementById('probability');
+
+                if (result.prediction === 1) {
+                    resultDiv.className = 'result danger';
+                    predictionText.innerHTML = '<strong>Prediction: Likely to be CANCELLED</strong>';
+                } else {
+                    resultDiv.className = 'result success';
+                    predictionText.innerHTML = '<strong>Prediction: Likely to be CONFIRMED</strong>';
+                }
+
+                // probabilityDiv.innerHTML = `
+                //     Probability of Cancellation: ${(result.probability_cancelled * 100).toFixed(2)}%<br>
+                //     Probability of Confirmation: ${(result.probability_not_cancelled * 100).toFixed(2)}%
+                // `;
+
+                resultDiv.style.display = 'block';
+
+            } catch (error) {
+                alert('Error making prediction: ' + error.message);
+            }
+        });
+    </script>
+</body>
+
+</html>
