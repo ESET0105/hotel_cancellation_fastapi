@@ -10,6 +10,7 @@ from sklearn.compose import make_column_transformer
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 import os
+## added changes here
 
 # Initialize FastAPI app
 app = FastAPI(title="Hotel Cancellation Prediction API")
